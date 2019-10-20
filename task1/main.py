@@ -14,11 +14,6 @@ from lightgbm import LGBMRegressor
 from scipy.stats import randint as sp_randint
 from scipy.stats import uniform as sp_uniform
 
-# supress warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-warnings.simplefilter(action='ignore', category=DeprecationWarning)
-
-
 class Model(object):
 
     def __init__(self, X: np.ndarray, y: np.ndarray, n_features: int, model_name: str = 'rf', verbose=True):
@@ -166,4 +161,6 @@ def main():
 
 
 if __name__ == '__main__':
+    warnings.simplefilter(action='ignore', category=FutureWarning)
+    warnings.simplefilter(action='ignore', category=DeprecationWarning)
     main()
