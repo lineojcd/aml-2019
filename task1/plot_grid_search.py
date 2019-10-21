@@ -1,52 +1,70 @@
+from sklearn.model_selection import GridSearchCV
+from matplotlib import pyplot as plt
+import pandas as pd
+import pprint
+import math
 
+def grid_search_plot(grid_search, param_name, ax=None, fit_time=False):
+    assert (isinstance(grid_search, pd.DataFrame)
+            or isinstance(grid_search, GridSearchCV)
+            ), 'grid_search must be of GridSearchCV or pandas.DataFrame'
+    if ax is None:
+        ax = plt.gca()
+    if not isinstance(grid_search, pd.DataFrame):
+        df = pd.DataFrame(grid_search.cv_results_)
 
-def GridSearch_table_plot(grid_search, param_name,
-                          graph=True,
-                          display_all_params=False,
-                          save=None):
-    from matplotlib import pyplot as plt
-    import pandas as pd
-    from sklearn.externals import joblib
-
-    if save:
-        joblib.dump(grid_search.best_params_, '{}.pkl'.format(
-            save), compress=1)  # Only best parameters
-
-    # pick out the best results
-    # =========================
-    scores_df = pd.DataFrame(grid_search.cv_results_).sort_values(by='rank_test_score')
-
-    best_row = scores_df.iloc[0, :]
+    df.sort_values(by='rank_test_score')
+    best_row = df.iloc[0, :]
     best_mean = best_row['mean_test_score']
     best_param = best_row['param_' + param_name]
 
-    # =====================================
-    if display_all_params:
-        print(
-            "best score:      {:0.5f} (+/-{:0.5f})".format(grid_search.best_score_, grid_search.cv_results_['std_test_score'][grid_search.best_index_]))
-        import pprint
-        pprint.pprint(grid_search.best_estimator_.get_params())
+    if fit_time:
+        to_plot = 'fit_time'
+        ax.set_ylabel('fit_time')
+    else:
+        to_plot = 'test_score'
+        # plot the best parameters
+        ax.plot(best_param, best_mean, 'or')
+        ax.set_ylabel('Score')
 
-    # plot the results
-    # ================
-    scores_df = scores_df.sort_values(by='param_' + param_name)
+    means = df['mean_{}'.format(to_plot)]
+    stds = df['std_{}'.format(to_plot)]
+    params = df['param_' + param_name]
 
-    means = scores_df['mean_test_score']
-    stds = scores_df['std_test_score']
-    params = scores_df['param_' + param_name]
+    ax.errorbar(params, means, yerr=stds)
+    ax.set_xlabel(param_name)
 
-    # plot
-    if graph:
-        plt.figure(figsize=(8, 8))
-        plt.errorbar(params, means, yerr=stds)
+    return ax
 
-        # plt.axhline(y=best_mean + best_stdev, color='red')
-        # plt.axhline(y=best_mean - best_stdev, color='red')
-        plt.plot(best_param, best_mean, 'or')
 
-        plt.title(param_name + " vs Score\nBest Score {:0.5f}".format(grid_search.best_score_))
-        # plt.xlabel(param_name)
-        # plt.ylabel('Score')
-        plt.show()
+def plot_grid_search_all(grid_search, fname=None, fit_time=False, title=None):
 
-    return scores_df
+    param_all = list(grid_search.param_grid.keys())
+    n = len(param_all)
+    if n < 4:
+        fig, axes = plt.subplots(
+            nrows=1, ncols=len(param_all), figsize=(3*n, 3))
+
+        for i in range(n):
+            grid_search_plot(
+                grid_search, param_all[i], axes[i], fit_time=fit_time)
+        plt.tight_layout()
+    else:
+        nrows = math.ceil(math.sqrt(n))
+        fig, axes = plt.subplots(nrows=nrows, ncols=nrows, figsize=(3*n, 3*n), fit_time=fit_time)
+        for i in range(n):
+            grid_search_plot(grid_search, param_all[i], axes[i])
+        plt.tight_layout()
+
+    if not title:
+        title = '{} vs param'.format(
+            'Score') if not fit_time else '{} vs param'.format('fit_time')
+    st = fig.suptitle(title, fontsize="x-large")
+    st.set_y(0.95)
+    fig.subplots_adjust(top=0.85)
+
+    if fname:
+        plt.savefig(fname, dpi=200)
+
+    plt.close()
+    return fig
