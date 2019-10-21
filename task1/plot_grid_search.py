@@ -14,18 +14,7 @@ def grid_search_plot(grid_search, param_name, ax=None, fit_time=False):
         df = pd.DataFrame(grid_search.cv_results_)
 
     df.sort_values(by='rank_test_score')
-    best_row = df.iloc[0, :]
-    best_mean = best_row['mean_test_score']
-    best_param = best_row['param_' + param_name]
-
-    if fit_time:
-        to_plot = 'fit_time'
-        ax.set_ylabel('fit_time')
-    else:
-        to_plot = 'test_score'
-        # plot the best parameters
-        ax.plot(best_param, best_mean, 'or')
-        ax.set_ylabel('Score')
+    to_plot = 'fit_time' if fit_time else 'test_score'
 
     means = df['mean_{}'.format(to_plot)]
     stds = df['std_{}'.format(to_plot)]
@@ -36,32 +25,24 @@ def grid_search_plot(grid_search, param_name, ax=None, fit_time=False):
 
     return ax
 
-
 def plot_grid_search_all(grid_search, fname=None, fit_time=False, title=None):
-
+    
     param_all = list(grid_search.param_grid.keys())
-    n = len(param_all)
-    if n < 4:
-        fig, axes = plt.subplots(
-            nrows=1, ncols=len(param_all), figsize=(3*n, 3))
-
-        for i in range(n):
-            grid_search_plot(
-                grid_search, param_all[i], axes[i], fit_time=fit_time)
-        plt.tight_layout()
+    nrows = math.ceil(math.sqrt(len(param_all)))
+    fig, axes = plt.subplots(nrows=nrows, ncols=nrows, figsize=(3*len(param_all), 3*len(param_all)))
+    if nrows == 1:
+        grid_search_plot(grid_search, param_all[0], axes, fit_time=fit_time)
     else:
-        nrows = math.ceil(math.sqrt(n))
-        fig, axes = plt.subplots(nrows=nrows, ncols=nrows, figsize=(3*n, 3*n), fit_time=fit_time)
-        for i in range(n):
-            grid_search_plot(grid_search, param_all[i], axes[i])
-        plt.tight_layout()
+        for ax, p in zip(axes.flat, param_all):
+            grid_search_plot(grid_search, p, ax, fit_time=fit_time)
+    
+    plt.tight_layout()
 
     if not title:
-        title = '{} vs param'.format(
-            'Score') if not fit_time else '{} vs param'.format('fit_time')
+        title = '{} vs param'.format('Score') if not fit_time else '{} vs param'.format('fit_time')
     st = fig.suptitle(title, fontsize="x-large")
     st.set_y(0.95)
-    fig.subplots_adjust(top=0.85)
+    fig.subplots_adjust(top=0.9)
 
     if fname:
         plt.savefig(fname, dpi=200)
