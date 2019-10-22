@@ -2,7 +2,6 @@ import warnings
 import csv
 import numpy as np
 import pandas as pd
-import os
 import sklearn
 from sklearn.model_selection import cross_val_score, train_test_split, RandomizedSearchCV, GridSearchCV
 from sklearn.linear_model import Ridge
@@ -13,10 +12,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.base import TransformerMixin
 from sklearn.neighbors import LocalOutlierFactor
-from plot_grid_search import plot_grid_search_all
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 from sklearn.externals import joblib
+from lightgbm import LGBMRegressor
+from helper_func import tune
 
 
 class LocalOutlierTransformer(TransformerMixin):
@@ -50,7 +50,8 @@ pipeline = Pipeline([
     ('data_pre', data_pre),
     ('feature_extract', feature_kbest),
     ('scaler', StandardScaler()),
-    ('rf', RandomForestRegressor(n_estimators=500, max_depth=15, n_jobs=-1)),
+    # ('rf', RandomForestRegressor(n_estimators=500, max_depth=15, n_jobs=-1)),
+    ('lgbm', LGBMRegressor(verbose=0, num_leaves=36, learning_rate=0.05, feature_fraction=0.5, bagging_fraction=0.8, bagging_freq=5)),   
 ])
 
 def main():
@@ -59,33 +60,20 @@ def main():
     np.savetxt('submission.csv', np.dstack((np.arange(0, pred.size), pred))[0], '%0.1f,%f',
                comments='', header="id,y")
 
-def tune(pipeline, param_grid, X, y, save=True):
-    from time import time, strftime
-    timestr = strftime("%Y%m%d-%H%M%S")
-    grid_search = GridSearchCV(pipeline, param_grid, scoring='r2', cv=5)
-    t0 = time()
-    grid_search.fit(X, y)
-    
-    print("done in %0.3fs\n" % (time() - t0))
-    print("Best score: %0.3f" % grid_search.best_score_)
-    print("Best parameters set:")
-    best_parameters = grid_search.best_estimator_.get_params()
-    for param_name in sorted(param_grid.keys()):
-        print("\t%s: %r" % (param_name, best_parameters[param_name]))
-    
-    if save:
-        if not os.path.exists('log'):
-            os.makedirs('log')
-        plot_grid_search_all(grid_search, fname='log/gscv_{}.png'.format(timestr))
-        joblib.dump(grid_search, 'log/gscv_{}.pkl'.format(timestr), compress=1)
-        joblib.dump(grid_search.best_estimator_, 'log/best_{}.pkl'.format(timestr), compress=1)
-
 param_grid = {
     'data_pre__sim__strategy': ['mean', 'median'],
     'feature_extract__var__threshold': [0.01, 0.05],
     'feature_extract__kbest__k': np.linspace(5, 400, num=5, dtype=np.int),
 }
 
+param_lgbm = {
+    'num_leaves': np.linspace(5, 100, num=10, dtype=np.int),
+    # 'learning_rate': [1e-3, 1e-2, 1e-1, 0.05, 0.5],
+    # 'feature_fraction': np.linspace(0.2, 0.8, num=4, dtype=np.float),
+    # 'bagging_fraction': np.linspace(0.2, 0.8, num=4, dtype=np.float),
+}
+
 if __name__ == '__main__':
     main()
+    # param_grid = {'lgbm__'+k: v for k, v in param_lgbm.items()}
     # tune(pipeline, param_grid, X, y)
