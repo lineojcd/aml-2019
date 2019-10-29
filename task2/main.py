@@ -1,9 +1,12 @@
 import os
 import sys
-dir_cur = os.path.dirname(__file__)
+dir_cur = os.path.abspath(os.path.dirname(__file__))
 dir_par = os.path.dirname(dir_cur)
 sys.path.insert(0, dir_par)
 from helper.tuning import tune
+import warnings
+warnings.filterwarnings("ignore")
+
 from imblearn.under_sampling import ClusterCentroids
 from imblearn.over_sampling import RandomOverSampler, SMOTE
 from imblearn.pipeline import Pipeline
@@ -34,7 +37,7 @@ X, y = outliers_removal(X, y)
 pipeline = Pipeline([
     ('scaler', StandardScaler()),
     ('smote', ClusterCentroids()),
-    ('clf', RandomForestClassifier(random_state=1)),
+    ('clf', SVC(random_state=1)),
 ])
 
 param_grid = {
@@ -50,9 +53,7 @@ def main():
 
 
 if __name__ == "__main__":
-    import warnings
-    warnings.filterwarnings("ignore")
     print('X shape: {},\t y shape: {}'.format(X.shape, y.shape))
-    # main()
+    main()
     # param_grid = {'clf__'+k: v for k, v in param_svm.items()}
-    tune(pipeline, param_grid, X, y, save=1, scoring='balanced_accuracy', verbose=0)
+    # tune(pipeline, param_grid, X, y, save=1, scoring='balanced_accuracy', verbose=0)

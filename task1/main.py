@@ -1,9 +1,11 @@
 import os
 import sys
-dir_cur = os.path.dirname(__file__)
+dir_cur = os.path.abspath(os.path.dirname(__file__))
 dir_par = os.path.dirname(dir_cur)
 sys.path.insert(0, dir_par)
 from helper.tuning import tune
+import warnings
+warnings.filterwarnings("ignore")
 import pandas as pd
 import numpy as np
 from lightgbm import LGBMRegressor
