@@ -65,14 +65,15 @@ clf with default parameters
 
 clf with default parameters
 
-| Score           | clf      | submission score | outliers removal   |
-|-----------------|----------|------------------|--------------------|
-| 0.662 +/- 0.011 | SVC      | 0.689458547647   | :x:                |
-| 0.676 +/- 0.022 | SVC      | 0.681531898726   | :heavy_check_mark: |
-| 0.602 +/- 0.017 | NB       |                  | :x:                |
-| 0.441 +/- 0.022 | KNN      |                  | :x:                |
-| 0.650 +/- 0.007 | LightGBM |                  | :x:                |
-| 0.670 +/- 0.010 | LightGBM |                  | :white_check_mark: |
+| Score           | clf           | submission score | outliers removal   |
+|-----------------|---------------|------------------|--------------------|
+| 0.662 +/- 0.011 | SVC           | 0.689458547647   | :x:                |
+| 0.676 +/- 0.022 | SVC           | 0.681531898726   | :heavy_check_mark: |
+| 0.602 +/- 0.017 | NB            |                  | :x:                |
+| 0.441 +/- 0.022 | KNN           |                  | :x:                |
+| 0.650 +/- 0.007 | LightGBM      |                  | :x:                |
+| 0.670 +/- 0.010 | LightGBM      |                  | :white_check_mark: |
+| 0.658 +/- 0.025 | MLPClassifier |                  | :white_check_mark: |
 
 ### SVM
 
