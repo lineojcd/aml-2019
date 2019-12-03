@@ -2,6 +2,8 @@ task3/data/X_*.csv
 task3/data/*.pkl
 task3/data/*first*
 
+task4/data/
+
 # Created by https://www.gitignore.io/api/linux,macos,python,windows,jupyternotebooks,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=linux,macos,python,windows,jupyternotebooks,visualstudiocode
 
