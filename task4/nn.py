@@ -1,11 +1,12 @@
 from main import read_test_data, read_data, StandardScaler
 import sklearn
+import numpy
 from keras import layers
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Reshape, Conv2D, MaxPooling2D, Flatten
 from keras.layers import Activation
 from keras.wrappers.scikit_learn import KerasClassifier
-from keras.utils import np_utils
+from keras.utils import np_utils, to_categorical
 from time import gmtime, strftime, localtime, time
 
 
@@ -84,6 +85,6 @@ if __name__ == "__main__":
     model = cnn()
     X, y = read_data()
     X = StandardScaler().fit_transform(X)
-    y = np_utils.to_categorical(y)
+    y = to_categorical(y)
     X = X.reshape((-1, 3, 512, 1))
     model.fit(X, y, verbose=10)
