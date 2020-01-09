@@ -4,9 +4,9 @@ Disease Classification
 
 ## Data
 
-Training data consists of `X_train` of shape `(4800, 1000)` and corresponing class label with no missing values.
+Training data consists of `X_train` of shape `(4800, 1000)` and corresponding class label with no missing values.
 
-Since the `X` came from image data, it is assumed that the feature selection reducing the dimensions for classfier would certainly result in a loss of spatial information and thus leave to a worst prediction results. This is further confirmed by the `0.546009142434` \(k=200\) and \(k=1000\)`0.566955223235`. Howeverm the difference is not significant and the low score reflects merely on the class imbalance.
+Since the `X` came from image data, it is assumed that the feature selection reducing the dimensions for classifier would certainly result in a loss of spatial information and thus leave to a worst prediction results. This is further confirmed by the `0.546009142434` \(k=200\) and \(k=1000\)`0.566955223235`. However, the difference is not significant and the low score reflects merely on the class imbalance.
 
 The number of samples for class `0, 1, 2` are 600, 3600, 600 respectively.
 
@@ -18,7 +18,7 @@ Using `LocalOutlierFactor` with default parameters, 4320 out of 4800 were chosen
 
 ## Under-sampling vs over-sampling
 
-Scores were based on the code below \`\`\`python cv = ShuffleSplit\(n\_splits=5, test\_size=0.2, random\_state=0\) cv\_score = cross\_val\_score\( pipeline, X, y, cv=cv, scoring='balanced\_accuracy'\) print\("{:.3f} +/- {:.3f}".format\(np.mean\(cv\_score\), np.std\(cv\_score\)\)\) \`\`\`
+Scores were based on the code below 
 
 ```python
 cv = ShuffleSplit(n_splits=5, test_size=0.2, random_state=0)
@@ -90,6 +90,4 @@ Marginal return on increase on the number of estimators
 | 0.595 +/- 0.021 |  | :x: | SMOTE | 100 |
 | 0.593 +/- 0.023 |  | :x: | SMOTE | 200 |
 | 0.602 +/- 0.024 |  | :x: | SMOTE | 500 |
-
-![ClusterCentroids](.gitbook/assets/gscv_20191029-115600.png) ![SMOTE](.gitbook/assets/gscv_20191029-120742.png)
 
